@@ -8,6 +8,9 @@ import {
   UserPlusIcon, 
   CurrencyDollarIcon,
   CheckCircleIcon,
+  CalendarIcon,
+  XMarkIcon,
+  BriefcaseIcon
 } from '@heroicons/react/24/outline';
 
 interface FinanceModuleProps {
@@ -16,15 +19,158 @@ interface FinanceModuleProps {
   consultants: Consultant[];
 }
 
+const EngagementDetailModal: React.FC<{ 
+  engagement: Engagement; 
+  onClose: () => void; 
+  consultants: Consultant[]; 
+}> = ({ engagement, onClose, consultants }) => {
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(amount);
+  };
+
+  const getStatusColor = (status: EngagementStatus) => {
+    switch (status) {
+      case EngagementStatus.ACTIVE: return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+      case EngagementStatus.PIPELINE: return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
+      case EngagementStatus.COMPLETED: return 'bg-slate-500/10 text-slate-400 border-slate-500/20';
+      case EngagementStatus.ON_HOLD: return 'bg-orange-500/10 text-orange-400 border-orange-500/20';
+      default: return 'bg-slate-500/10 text-slate-400';
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+      <div className="bg-nexus-800 border border-nexus-700/50 rounded-2xl w-full max-w-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+        
+        {/* Header */}
+        <div className="p-6 border-b border-white/5 bg-nexus-900/50 flex items-start justify-between">
+          <div>
+            <div className="flex items-center gap-3 mb-1">
+              <h2 className="text-2xl font-display font-bold text-white">{engagement.clientName}</h2>
+              <span className={`text-xs px-2.5 py-1 rounded-full border font-medium ${getStatusColor(engagement.status)}`}>
+                {engagement.status}
+              </span>
+            </div>
+            <p className="text-nexus-accent font-medium">{engagement.projectName}</p>
+          </div>
+          <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors">
+            <XMarkIcon className="w-6 h-6 text-slate-400" />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="p-6 overflow-y-auto space-y-8 custom-scrollbar">
+          
+          {/* Description */}
+          <div>
+            <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-2">Description</h3>
+            <p className="text-slate-200 leading-relaxed bg-white/5 p-4 rounded-lg border border-white/5">
+              {engagement.description || "No description provided."}
+            </p>
+          </div>
+
+          {/* Key Metrics Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+             <div className="bg-nexus-900/50 p-4 rounded-lg border border-white/5">
+                <div className="flex items-center gap-2 text-nexus-accent mb-2">
+                   <CalendarIcon className="w-5 h-5" />
+                   <span className="text-sm font-semibold">Timeline</span>
+                </div>
+                <p className="text-white text-sm">
+                  {new Date(engagement.startDate).toLocaleDateString()} - {new Date(engagement.endDate).toLocaleDateString()}
+                </p>
+             </div>
+             
+             <div className="bg-nexus-900/50 p-4 rounded-lg border border-white/5">
+                <div className="flex items-center gap-2 text-emerald-400 mb-2">
+                   <CurrencyDollarIcon className="w-5 h-5" />
+                   <span className="text-sm font-semibold">Financials</span>
+                </div>
+                <p className="text-white font-bold">{formatCurrency(engagement.budget)}</p>
+                <p className="text-xs text-slate-500 mt-0.5">{engagement.pricingModel}</p>
+             </div>
+
+             <div className="bg-nexus-900/50 p-4 rounded-lg border border-white/5">
+                <div className="flex items-center gap-2 text-purple-400 mb-2">
+                   <BriefcaseIcon className="w-5 h-5" />
+                   <span className="text-sm font-semibold">Positions</span>
+                </div>
+                <p className="text-white text-sm">
+                  {engagement.team.length} Staffed / {engagement.staffingNeeds.length} Total Needs
+                </p>
+             </div>
+          </div>
+
+          {/* Team Section */}
+          <div>
+            <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4">Project Team</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {engagement.team.length > 0 ? engagement.team.map(consultantId => {
+                const consultant = consultants.find(c => c.id === consultantId);
+                if (!consultant) return null;
+                return (
+                  <div key={consultant.id} className="flex items-center gap-3 bg-nexus-900 border border-white/5 p-3 rounded-lg">
+                    <img src={consultant.avatar} alt={consultant.name} className="w-10 h-10 rounded-full object-cover" />
+                    <div>
+                      <p className="text-sm font-bold text-white">{consultant.name}</p>
+                      <p className="text-xs text-slate-400">{consultant.role}</p>
+                    </div>
+                  </div>
+                );
+              }) : (
+                <p className="text-sm text-slate-500 italic">No consultants currently assigned.</p>
+              )}
+            </div>
+          </div>
+
+          {/* Staffing Needs Section */}
+          <div>
+            <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4">Staffing Requirements</h3>
+             <div className="space-y-2">
+                {engagement.staffingNeeds.map(need => (
+                  <div key={need.id} className="flex items-center justify-between bg-white/5 p-3 rounded-lg border border-white/5">
+                     <div className="flex items-center gap-3">
+                        <div className={`w-2 h-2 rounded-full ${need.filledBy ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+                        <div>
+                           <p className="text-sm font-medium text-white">{need.role}</p>
+                           <p className="text-xs text-slate-500">{need.skills.join(', ')}</p>
+                        </div>
+                     </div>
+                     <span className={`text-xs px-2 py-1 rounded ${need.filledBy ? 'bg-emerald-500/10 text-emerald-400' : 'bg-slate-700 text-slate-400'}`}>
+                        {need.filledBy ? 'Filled' : 'Open'}
+                     </span>
+                  </div>
+                ))}
+                {engagement.staffingNeeds.length === 0 && <p className="text-sm text-slate-500">No specific staffing needs defined.</p>}
+             </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="p-4 border-t border-white/5 bg-nexus-900/50 flex justify-end">
+          <button 
+            onClick={onClose}
+            className="px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg text-sm font-medium transition-colors"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const FinanceModule: React.FC<FinanceModuleProps> = ({ engagements, setEngagements, consultants }) => {
   const [view, setView] = useState<'list' | 'form'>('list');
   const [editingEngagement, setEditingEngagement] = useState<Engagement | null>(null);
+  const [selectedEngagement, setSelectedEngagement] = useState<Engagement | null>(null);
 
   // Form State
   const [formData, setFormData] = useState<Partial<Engagement>>({});
 
   // CRUD Handlers
-  const handleEdit = (engagement: Engagement) => {
+  const handleEdit = (engagement: Engagement, e: React.MouseEvent) => {
+    e.stopPropagation();
     setEditingEngagement(engagement);
     setFormData({ ...engagement });
     setView('form');
@@ -40,7 +186,8 @@ const FinanceModule: React.FC<FinanceModuleProps> = ({ engagements, setEngagemen
     setView('form');
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
     if (confirm('Are you sure you want to delete this engagement from the database?')) {
       await api.deleteEngagement(id);
       setEngagements(prev => prev.filter(e => e.id !== id));
@@ -127,7 +274,11 @@ const FinanceModule: React.FC<FinanceModuleProps> = ({ engagements, setEngagemen
             </thead>
             <tbody className="divide-y divide-white/5">
               {engagements.map(e => (
-                <tr key={e.id} className="hover:bg-white/5 transition-colors group">
+                <tr 
+                  key={e.id} 
+                  onClick={() => setSelectedEngagement(e)}
+                  className="hover:bg-white/5 transition-colors group cursor-pointer"
+                >
                   <td className="p-4">
                     <div className="font-semibold text-white">{e.clientName}</div>
                     <div className="text-sm text-slate-400">{e.projectName}</div>
@@ -165,14 +316,14 @@ const FinanceModule: React.FC<FinanceModuleProps> = ({ engagements, setEngagemen
                   <td className="p-4 text-right">
                     <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button 
-                        onClick={() => handleEdit(e)}
+                        onClick={(evt) => handleEdit(e, evt)}
                         className="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg"
                         title="Edit"
                       >
                         <PencilSquareIcon className="w-4 h-4" />
                       </button>
                       <button 
-                        onClick={() => handleDelete(e.id)}
+                        onClick={(evt) => handleDelete(e.id, evt)}
                         className="p-2 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 rounded-lg"
                         title="Delete"
                       >
@@ -373,6 +524,13 @@ const FinanceModule: React.FC<FinanceModuleProps> = ({ engagements, setEngagemen
   return (
     <div className="animate-fade-in">
       {view === 'list' ? renderList() : renderForm()}
+      {selectedEngagement && (
+        <EngagementDetailModal 
+          engagement={selectedEngagement} 
+          onClose={() => setSelectedEngagement(null)}
+          consultants={consultants}
+        />
+      )}
     </div>
   );
 };
