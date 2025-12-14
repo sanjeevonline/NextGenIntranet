@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Engagement, EngagementStatus, PricingModel, Consultant } from '../types';
+import * as api from '../services/api';
 import { 
   PlusIcon, 
   PencilSquareIcon, 
@@ -39,13 +40,14 @@ const FinanceModule: React.FC<FinanceModuleProps> = ({ engagements, setEngagemen
     setView('form');
   };
 
-  const handleDelete = (id: string) => {
-    if (confirm('Are you sure you want to delete this engagement?')) {
+  const handleDelete = async (id: string) => {
+    if (confirm('Are you sure you want to delete this engagement from the database?')) {
+      await api.deleteEngagement(id);
       setEngagements(prev => prev.filter(e => e.id !== id));
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!formData.clientName || !formData.projectName) {
       alert("Please fill in Client Name and Project Name");
       return;
@@ -53,7 +55,9 @@ const FinanceModule: React.FC<FinanceModuleProps> = ({ engagements, setEngagemen
 
     if (editingEngagement) {
       // Update
-      setEngagements(prev => prev.map(e => e.id === editingEngagement.id ? { ...formData, id: e.id } as Engagement : e));
+      const updated = { ...formData, id: editingEngagement.id } as Engagement;
+      await api.updateEngagement(updated);
+      setEngagements(prev => prev.map(e => e.id === editingEngagement.id ? updated : e));
     } else {
       // Create
       const newEngagement = {
@@ -61,6 +65,7 @@ const FinanceModule: React.FC<FinanceModuleProps> = ({ engagements, setEngagemen
         id: `e-${Date.now()}`,
         staffingNeeds: [] // Default empty
       } as Engagement;
+      await api.createEngagement(newEngagement);
       setEngagements(prev => [...prev, newEngagement]);
     }
     setView('list');

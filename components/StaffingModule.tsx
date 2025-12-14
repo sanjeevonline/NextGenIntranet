@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Engagement, Consultant, EngagementStatus } from '../types';
+import * as api from '../services/api';
 import { MagnifyingGlassIcon, BriefcaseIcon, CheckCircleIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 interface StaffingModuleProps {
@@ -39,44 +40,61 @@ const StaffingModule: React.FC<StaffingModuleProps> = ({ engagements, setEngagem
     e.dataTransfer.dropEffect = 'copy';
   };
 
-  const handleDrop = (e: React.DragEvent, engagementId: string, needId: string) => {
+  const handleDrop = async (e: React.DragEvent, engagementId: string, needId: string) => {
     e.preventDefault();
     if (!draggedConsultant) return;
 
-    setEngagements(prev => prev.map(eng => {
-      if (eng.id !== engagementId) return eng;
-      
-      const updatedNeeds = eng.staffingNeeds.map(need => {
-        if (need.id === needId) {
-          return { ...need, filledBy: draggedConsultant.id };
-        }
-        return need;
-      });
+    // Find the engagement to update
+    const engagementToUpdate = engagements.find(e => e.id === engagementId);
+    if (!engagementToUpdate) return;
 
-      const updatedTeam = [...eng.team];
-      if (!updatedTeam.includes(draggedConsultant.id)) {
-        updatedTeam.push(draggedConsultant.id);
+    // Create updated structure
+    const updatedNeeds = engagementToUpdate.staffingNeeds.map(need => {
+      if (need.id === needId) {
+        return { ...need, filledBy: draggedConsultant.id };
       }
+      return need;
+    });
 
-      return { ...eng, staffingNeeds: updatedNeeds, team: updatedTeam };
-    }));
+    const updatedTeam = [...engagementToUpdate.team];
+    if (!updatedTeam.includes(draggedConsultant.id)) {
+      updatedTeam.push(draggedConsultant.id);
+    }
+
+    const updatedEngagement = { 
+      ...engagementToUpdate, 
+      staffingNeeds: updatedNeeds, 
+      team: updatedTeam 
+    };
+
+    // Optimistic Update
+    setEngagements(prev => prev.map(eng => eng.id === engagementId ? updatedEngagement : eng));
+    
+    // DB Update
+    await api.updateEngagement(updatedEngagement);
 
     setDraggedConsultant(null);
   };
 
-  const handleUnassign = (engagementId: string, needId: string, consultantId: string) => {
-    setEngagements(prev => prev.map(eng => {
-      if (eng.id !== engagementId) return eng;
+  const handleUnassign = async (engagementId: string, needId: string, consultantId: string) => {
+     // Find the engagement to update
+    const engagementToUpdate = engagements.find(e => e.id === engagementId);
+    if (!engagementToUpdate) return;
 
-      const updatedNeeds = eng.staffingNeeds.map(need => {
-        if (need.id === needId) {
-          return { ...need, filledBy: undefined };
-        }
-        return need;
-      });
-      
-      return { ...eng, staffingNeeds: updatedNeeds };
-    }));
+    const updatedNeeds = engagementToUpdate.staffingNeeds.map(need => {
+      if (need.id === needId) {
+        return { ...need, filledBy: undefined };
+      }
+      return need;
+    });
+    
+    const updatedEngagement = { ...engagementToUpdate, staffingNeeds: updatedNeeds };
+
+    // Optimistic Update
+    setEngagements(prev => prev.map(eng => eng.id === engagementId ? updatedEngagement : eng));
+
+    // DB Update
+    await api.updateEngagement(updatedEngagement);
   };
 
   return (
@@ -84,7 +102,7 @@ const StaffingModule: React.FC<StaffingModuleProps> = ({ engagements, setEngagem
       <div className="flex justify-between items-center mb-4">
         <div>
           <h2 className="text-xl font-display font-semibold text-white">Project Allocation</h2>
-          <p className="text-xs text-slate-400">Drag consultants to open project needs.</p>
+          <p className="text-xs text-slate-400">Drag consultants to open project needs. Changes are saved automatically.</p>
         </div>
         <div className="flex gap-2">
             <span className="text-xs bg-nexus-accent/10 text-nexus-accent px-3 py-1 rounded-full border border-nexus-accent/20">

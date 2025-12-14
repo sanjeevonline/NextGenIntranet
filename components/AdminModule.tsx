@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Announcement, Task, KnowledgeDoc, Consultant, TaskType, Priority } from '../types';
+import * as api from '../services/api';
 import { 
   MegaphoneIcon, 
   ClipboardDocumentCheckIcon, 
@@ -37,7 +38,7 @@ const AdminModule: React.FC<AdminModuleProps> = ({
     setIsFormOpen(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (activeTab === 'announcements') {
       const newItem: Announcement = {
         id: `a-${Date.now()}`,
@@ -46,6 +47,7 @@ const AdminModule: React.FC<AdminModuleProps> = ({
         date: 'Today',
         summary: formData.summary || 'No summary provided.'
       };
+      await api.createAnnouncement(newItem);
       setAnnouncements(prev => [newItem, ...prev]);
     } else if (activeTab === 'tasks') {
       const newItem: Task = {
@@ -57,6 +59,7 @@ const AdminModule: React.FC<AdminModuleProps> = ({
         type: formData.type || TaskType.ADMIN,
         progress: 0
       };
+      await api.createTask(newItem);
       setTasks(prev => [newItem, ...prev]);
     } else if (activeTab === 'knowledge') {
       const newItem: KnowledgeDoc = {
@@ -67,6 +70,7 @@ const AdminModule: React.FC<AdminModuleProps> = ({
         content: formData.content || '',
         tags: formData.tags ? formData.tags.split(',').map((t: string) => t.trim()) : []
       };
+      await api.createKnowledgeDoc(newItem);
       setDocs(prev => [newItem, ...prev]);
     } else if (activeTab === 'people') {
       const newItem: Consultant = {
@@ -78,18 +82,31 @@ const AdminModule: React.FC<AdminModuleProps> = ({
         availability: 'Available',
         avatar: `https://i.pravatar.cc/150?u=${Date.now()}`
       };
+      await api.createConsultant(newItem);
       setConsultants(prev => [newItem, ...prev]);
     }
     setIsFormOpen(false);
   };
 
-  const handleDelete = (id: string, e: React.MouseEvent) => {
+  const handleDelete = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (confirm('Are you sure?')) {
-      if (activeTab === 'announcements') setAnnouncements(prev => prev.filter(i => i.id !== id));
-      if (activeTab === 'tasks') setTasks(prev => prev.filter(i => i.id !== id));
-      if (activeTab === 'knowledge') setDocs(prev => prev.filter(i => i.id !== id));
-      if (activeTab === 'people') setConsultants(prev => prev.filter(i => i.id !== id));
+    if (confirm('Are you sure you want to delete this from the database?')) {
+      if (activeTab === 'announcements') {
+          await api.deleteAnnouncement(id);
+          setAnnouncements(prev => prev.filter(i => i.id !== id));
+      }
+      if (activeTab === 'tasks') {
+          await api.deleteTask(id);
+          setTasks(prev => prev.filter(i => i.id !== id));
+      }
+      if (activeTab === 'knowledge') {
+          await api.deleteKnowledgeDoc(id);
+          setDocs(prev => prev.filter(i => i.id !== id));
+      }
+      if (activeTab === 'people') {
+          await api.deleteConsultant(id);
+          setConsultants(prev => prev.filter(i => i.id !== id));
+      }
     }
   };
 
@@ -247,7 +264,7 @@ const AdminModule: React.FC<AdminModuleProps> = ({
     <div className="max-w-5xl mx-auto animate-fade-in">
       <div className="mb-8">
         <h1 className="text-3xl font-display font-bold text-white mb-2">System Administration</h1>
-        <p className="text-slate-400">Manage global data, users, and content across the Intranet.</p>
+        <p className="text-slate-400">Manage global data, users, and content across the Intranet. Changes persist to the database.</p>
       </div>
       {renderTabs()}
       {renderList()}
