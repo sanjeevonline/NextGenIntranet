@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Announcement, Task, KnowledgeDoc, Consultant, TaskType, Priority } from '../types';
 import * as api from '../services/api';
+import { db } from '../services/db'; // Import direct DB access for inspector
 import { 
   MegaphoneIcon, 
   ClipboardDocumentCheckIcon, 
@@ -8,6 +9,8 @@ import {
   UserGroupIcon, 
   PlusIcon,
   TrashIcon,
+  CircleStackIcon, // Added icon
+  TableCellsIcon
 } from '@heroicons/react/24/outline';
 
 interface AdminModuleProps {
@@ -29,9 +32,30 @@ const AdminModule: React.FC<AdminModuleProps> = ({
   consultants, setConsultants,
   onViewProfile
 }) => {
-  const [activeTab, setActiveTab] = useState<'announcements' | 'tasks' | 'knowledge' | 'people'>('announcements');
+  const [activeTab, setActiveTab] = useState<'announcements' | 'tasks' | 'knowledge' | 'people' | 'database'>('announcements');
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formData, setFormData] = useState<any>({});
+  
+  // Database Inspector State
+  const [selectedTable, setSelectedTable] = useState<string>('tasks');
+  const [tableData, setTableData] = useState<any[]>([]);
+
+  // Fetch DB data when tab or table changes
+  useEffect(() => {
+    if (activeTab === 'database') {
+      const fetchData = async () => {
+        try {
+          // Dynamic access to dexie table
+          const data = await db.table(selectedTable).toArray();
+          setTableData(data);
+        } catch (e) {
+          console.error("Failed to fetch table data", e);
+          setTableData([]);
+        }
+      };
+      fetchData();
+    }
+  }, [activeTab, selectedTable, announcements, tasks, docs, consultants]); // Re-fetch if main props change too
 
   const handleCreate = () => {
     setFormData({});
@@ -111,12 +135,13 @@ const AdminModule: React.FC<AdminModuleProps> = ({
   };
 
   const renderTabs = () => (
-    <div className="flex space-x-2 bg-nexus-900 p-1 rounded-lg border border-nexus-700/50 mb-6 w-fit">
+    <div className="flex flex-wrap gap-2 bg-nexus-900 p-1 rounded-lg border border-nexus-700/50 mb-6 w-fit">
       {[
         { id: 'announcements', label: 'News', icon: MegaphoneIcon },
         { id: 'tasks', label: 'Tasks', icon: ClipboardDocumentCheckIcon },
         { id: 'knowledge', label: 'Knowledge', icon: BookOpenIcon },
         { id: 'people', label: 'People', icon: UserGroupIcon },
+        { id: 'database', label: 'System DB', icon: CircleStackIcon },
       ].map((tab) => (
         <button
           key={tab.id}
@@ -131,6 +156,81 @@ const AdminModule: React.FC<AdminModuleProps> = ({
       ))}
     </div>
   );
+
+  const renderDatabaseView = () => {
+    // Get all table names from schema
+    const tables = ['tasks', 'announcements', 'knowledgeDocs', 'consultants', 'engagements', 'feedbackRequests'];
+    
+    // Helper to render cell content safely
+    const renderCell = (value: any) => {
+      if (typeof value === 'object' && value !== null) {
+        if (Array.isArray(value)) return `[Array (${value.length})]`;
+        return '{Object}';
+      }
+      return String(value);
+    };
+
+    return (
+      <div className="space-y-4 animate-fade-in">
+        <div className="flex items-center justify-between mb-4 bg-nexus-800/50 p-4 rounded-xl border border-nexus-700/50">
+          <div className="flex items-center gap-4">
+             <div className="p-2 bg-nexus-accent/20 rounded-lg">
+                <TableCellsIcon className="w-6 h-6 text-nexus-accent" />
+             </div>
+             <div>
+               <h3 className="font-bold text-white">Raw Database Inspector</h3>
+               <p className="text-xs text-slate-400">Read-only view of IndexedDB contents</p>
+             </div>
+          </div>
+          <select 
+            value={selectedTable} 
+            onChange={(e) => setSelectedTable(e.target.value)}
+            className="bg-nexus-950 border border-nexus-700 text-white text-sm rounded-lg p-2.5 focus:ring-nexus-accent focus:border-nexus-accent"
+          >
+            {tables.map(t => <option key={t} value={t}>{t} ({t === selectedTable ? tableData.length : ''})</option>)}
+          </select>
+        </div>
+
+        <div className="bg-nexus-950 border border-nexus-700/50 rounded-lg overflow-hidden overflow-x-auto shadow-inner">
+           {tableData.length > 0 ? (
+             <table className="w-full text-left text-sm text-slate-400">
+               <thead className="bg-nexus-900 text-xs uppercase text-slate-300">
+                 <tr>
+                   {Object.keys(tableData[0]).map(key => (
+                     <th key={key} className="px-6 py-3 font-medium tracking-wider whitespace-nowrap">{key}</th>
+                   ))}
+                 </tr>
+               </thead>
+               <tbody className="divide-y divide-nexus-800">
+                 {tableData.map((row, idx) => (
+                   <tr key={idx} className="hover:bg-nexus-900/50 transition-colors">
+                     {Object.values(row).map((val, i) => (
+                       <td key={i} className="px-6 py-3 whitespace-nowrap max-w-xs truncate" title={String(val)}>
+                         {renderCell(val)}
+                       </td>
+                     ))}
+                   </tr>
+                 ))}
+               </tbody>
+             </table>
+           ) : (
+             <div className="p-8 text-center text-slate-500 italic">
+               Table is empty.
+             </div>
+           )}
+        </div>
+        
+        {/* JSON Preview for detailed inspection */}
+        <div className="mt-6">
+           <h4 className="text-xs font-bold text-slate-500 uppercase mb-2">Raw JSON Sample (First 3 Records)</h4>
+           <pre className="bg-black/50 p-4 rounded-lg text-xs text-emerald-400 overflow-x-auto font-mono border border-white/5">
+             {JSON.stringify(tableData.slice(0, 3), null, 2)}
+             {tableData.length > 3 && `\n... ${tableData.length - 3} more records`}
+           </pre>
+        </div>
+      </div>
+    );
+  };
 
   const renderForm = () => {
     if (!isFormOpen) return null;
@@ -267,7 +367,7 @@ const AdminModule: React.FC<AdminModuleProps> = ({
         <p className="text-slate-400">Manage global data, users, and content across the Intranet. Changes persist to the database.</p>
       </div>
       {renderTabs()}
-      {renderList()}
+      {activeTab === 'database' ? renderDatabaseView() : renderList()}
     </div>
   );
 };

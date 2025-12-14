@@ -146,6 +146,7 @@ export const ANNOUNCEMENTS: Announcement[] = [
 ];
 
 export const KNOWLEDGE_DOCS: KnowledgeDoc[] = [
+  // Existing High-Level Strategy & Tech
   {
     id: 'k-1',
     title: 'Remote Work Policy 2024',
@@ -186,21 +187,167 @@ export const KNOWLEDGE_DOCS: KnowledgeDoc[] = [
     tags: ['Sustainability', 'Energy', 'Global Economy'],
     content: 'Achieving net-zero emissions by 2050 would require $9.2 trillion in annual average spending on physical assets, $3.5 trillion more than today. This transition offers significant growth opportunities for first movers in low-emissions products and support services, despite the risks of stranded assets and economic dislocation.'
   },
+  
+  // --- New SME Policies (HR, Operations, Security) ---
   {
-    id: 'k-8',
-    title: 'The Future of Wellness: Connected and Data-Driven',
-    type: 'Report',
-    lastUpdated: '2024-02-15',
-    tags: ['Healthcare', 'Consumer', 'Trends'],
-    content: 'The wellness market is growing at 5-10% annually. Consumers are shifting from "clean" to "clinical" (efficacy-backed products). 5 trends: 1. Health at home, 2. Biomarkers & personalization, 3. Wearables integration, 4. GenAI in health coaching, 5. Rise of corporate wellness ROI metrics.'
+    id: 'k-10',
+    title: 'Code of Conduct & Ethics',
+    type: 'Policy',
+    lastUpdated: '2024-01-01',
+    tags: ['HR', 'Compliance', 'Legal'],
+    content: 'All employees must maintain the highest standards of professional conduct. This includes honesty, integrity, and fairness in all dealings with clients, colleagues, and the public. Discrimination, harassment, and unethical behavior are strictly prohibited.'
   },
   {
-    id: 'k-9',
-    title: 'Reimagining E-commerce in the Age of Social Commerce',
-    type: 'Report',
+    id: 'k-11',
+    title: 'Anti-Discrimination & Harassment Policy',
+    type: 'Policy',
+    lastUpdated: '2024-01-01',
+    tags: ['HR', 'Compliance'],
+    content: 'Nexus Corp has zero tolerance for discrimination or harassment based on race, color, religion, sex, national origin, age, disability, or genetics. Violations should be reported to HR immediately and will result in disciplinary action up to termination.'
+  },
+  {
+    id: 'k-12',
+    title: 'Workplace Health & Safety (WHS)',
+    type: 'Policy',
+    lastUpdated: '2023-11-20',
+    tags: ['Operations', 'Safety'],
+    content: 'We are committed to providing a safe work environment. Employees must report all accidents, injuries, and unsafe conditions to the Operations Manager immediately. Emergency exits must remain clear at all times.'
+  },
+  {
+    id: 'k-13',
+    title: 'Data Privacy & Protection Policy (GDPR/CCPA)',
+    type: 'Policy',
+    lastUpdated: '2024-02-01',
+    tags: ['IT', 'Compliance', 'Legal'],
+    content: 'Personal data must be processed lawfully, transparently, and securely. Client data is confidential. Access is restricted to authorized personnel only. Data breaches must be reported to the Data Protection Officer within 24 hours.'
+  },
+  {
+    id: 'k-14',
+    title: 'Information Security & Acceptable Use',
+    type: 'Policy',
+    lastUpdated: '2024-02-15',
+    tags: ['IT', 'Security'],
+    content: 'Company devices are for business use. Passwords must be at least 12 characters and changed every 90 days. Multi-factor authentication (MFA) is mandatory. Do not share credentials. Phishing attempts should be reported to IT Security.'
+  },
+  {
+    id: 'k-15',
+    title: 'Social Media Policy',
+    type: 'Guide',
+    lastUpdated: '2023-12-10',
+    tags: ['HR', 'Marketing'],
+    content: 'Employees are responsible for their personal social media posts. Do not post confidential company information. When discussing company matters, clarify that views are your own. Harassment on social media is subject to disciplinary action.'
+  },
+  {
+    id: 'k-16',
+    title: 'Leave & Time Off Policy',
+    type: 'Policy',
+    lastUpdated: '2024-01-05',
+    tags: ['HR', 'Benefits'],
+    content: 'Full-time employees accrue 20 days of Annual Leave per year. Sick Leave is 10 days per year. Requests for leave must be submitted via the HR Portal at least 2 weeks in advance for planned absences.'
+  },
+  {
+    id: 'k-17',
+    title: 'Parental Leave Policy',
+    type: 'Policy',
+    lastUpdated: '2024-01-05',
+    tags: ['HR', 'Benefits'],
+    content: 'Nexus offers 12 weeks of fully paid primary caregiver leave and 4 weeks of secondary caregiver leave for birth or adoption. Returning parents may request a phased return-to-work schedule.'
+  },
+  {
+    id: 'k-18',
+    title: 'Performance Management Framework',
+    type: 'Guide',
+    lastUpdated: '2023-10-01',
+    tags: ['HR', 'Development'],
+    content: 'Performance is reviewed biannually (June & Dec). The process involves self-assessment, peer feedback (360), and manager review. Ratings determine bonus eligibility and promotion readiness.'
+  },
+  {
+    id: 'k-19',
+    title: 'Disciplinary & Grievance Procedure',
+    type: 'Policy',
+    lastUpdated: '2023-09-15',
+    tags: ['HR', 'Legal'],
+    content: 'Grievances should be raised first with the direct manager, then HR. Disciplinary steps: 1. Verbal Warning, 2. Written Warning, 3. Final Warning, 4. Termination. Serious misconduct may result in immediate dismissal.'
+  },
+  {
+    id: 'k-20',
+    title: 'Conflict of Interest Policy',
+    type: 'Policy',
+    lastUpdated: '2023-11-30',
+    tags: ['Legal', 'Compliance'],
+    content: 'Employees must disclose any outside employment, investments, or relationships that could conflict with company interests. Approval from Legal is required for any external board seats.'
+  },
+  {
+    id: 'k-21',
+    title: 'Whistleblower Protection Policy',
+    type: 'Policy',
     lastUpdated: '2024-01-20',
-    tags: ['Digital', 'Retail', 'Marketing'],
-    content: 'Social commerce is expected to grow 3x faster than traditional e-commerce. Brands must leverage creator economies, live shopping (growing 76% CAGR), and seamless in-app checkout. The distinction between "media" and "store" is vanishing.'
+    tags: ['Legal', 'Compliance'],
+    content: 'Employees can report misconduct anonymously via the Ethics Hotline. Nexus Corp strictly prohibits retaliation against anyone who reports a concern in good faith.'
+  },
+  {
+    id: 'k-22',
+    title: 'Travel & Entertainment (T&E) Policy',
+    type: 'Policy',
+    lastUpdated: '2023-12-01',
+    tags: ['Finance', 'Travel'],
+    content: 'Economy class for flights under 6 hours. Business class allowed for 6+ hours. Hotel cap is $300/night in major cities. Client entertainment is capped at $150/person. All expenses require receipts.'
+  },
+  {
+    id: 'k-23',
+    title: 'Procurement & Vendor Management',
+    type: 'Guide',
+    lastUpdated: '2023-11-15',
+    tags: ['Operations', 'Finance'],
+    content: 'Purchases over $5,000 require three competitive bids. New vendors must undergo a security and financial risk assessment. Purchase Orders (POs) must be approved before services begin.'
+  },
+  {
+    id: 'k-24',
+    title: 'Intellectual Property (IP) Agreement',
+    type: 'Policy',
+    lastUpdated: '2023-08-01',
+    tags: ['Legal'],
+    content: 'All work created by employees during employment belongs to Nexus Corp. Employees must not disclose trade secrets or proprietary methodologies to third parties during or after employment.'
+  },
+  {
+    id: 'k-25',
+    title: 'Recruitment & Referral Policy',
+    type: 'Policy',
+    lastUpdated: '2024-02-10',
+    tags: ['HR', 'Talent'],
+    content: 'We are an Equal Opportunity Employer. Open roles are posted internally for 5 days. Employee Referral Bonus: $2,000 for successful hires, paid after 90 days of tenure.'
+  },
+  {
+    id: 'k-26',
+    title: 'Termination & Offboarding Checklist',
+    type: 'Guide',
+    lastUpdated: '2024-01-15',
+    tags: ['HR', 'IT'],
+    content: 'Resignation requires 2 weeks notice (4 weeks for senior roles). On last day: Return laptop/badge, complete exit interview, and transfer knowledge. IT will revoke access at 5 PM on the final day.'
+  },
+  {
+    id: 'k-27',
+    title: 'Environmental & Sustainability (ESG)',
+    type: 'Policy',
+    lastUpdated: '2023-10-20',
+    tags: ['Strategy', 'Operations'],
+    content: 'Nexus aims to reduce its carbon footprint by 20% by 2025. Offices encourage recycling and paperless workflows. Travel should be minimized in favor of video conferencing where possible.'
+  },
+  {
+    id: 'k-28',
+    title: 'Substance Abuse & Drug-Free Workplace',
+    type: 'Policy',
+    lastUpdated: '2023-09-01',
+    tags: ['HR', 'Safety'],
+    content: 'The use, possession, or sale of illegal drugs or alcohol on company premises is prohibited. Employees under the influence while working will face disciplinary action.'
+  },
+  {
+    id: 'k-29',
+    title: 'Gift & Hospitality Policy',
+    type: 'Policy',
+    lastUpdated: '2023-11-10',
+    tags: ['Compliance', 'Legal'],
+    content: 'Employees cannot accept gifts valued over $100 from clients or vendors. Gifts of cash or securities are strictly prohibited. All gifts received must be declared in the Gift Register.'
   }
 ];
 
